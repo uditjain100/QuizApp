@@ -1,5 +1,6 @@
 package udit.programmer.co.quizapp.Room
 
+import android.database.Cursor
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
@@ -17,15 +18,18 @@ interface TodoDao {
     fun getCategoriesById(categoryId: Int): LiveData<MutableList<Category>>
 
     @Insert
-    fun insertAllCategories(vararg category: Category)
-
-    @Query("SELECT * FROM questions WHERE categoryId ORDER BY RANDOM() LIMIT 30")
-    fun getQuestionsByCategoryId(categoryId: Int): LiveData<MutableList<Question>>
-
-    @Query("SELECT * FROM questions WHERE id In (:questionId)")
-    fun getQuestionsById(questionId: Int): LiveData<MutableList<Question>>
+    fun insertCategories(category: Category)
 
     @Insert
-    fun insertAllQuestionsByCategories(vararg question: Question, categoryId: Int)
+    fun insertAllCategories(list: MutableList<Category>)
+
+//    @Query("SELECT * FROM questions WHERE categoryId ORDER BY RANDOM() LIMIT 30")
+//    fun getQuestionsByCategoryId(categoryId: Int): LiveData<MutableList<Question>>
+//
+//    @Query("SELECT * FROM questions WHERE id In (:questionId)")
+//    fun getQuestionsById(questionId: Int): LiveData<MutableList<Question>>
+//
+//    @Insert
+//    fun insertAllQuestionsByCategories(vararg question: Question, categoryId: Int)
 
 }

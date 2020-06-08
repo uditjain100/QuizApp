@@ -24,15 +24,15 @@ class ViewModelClass : ViewModel() {
         }
     }
 
-    fun fetchQuestions(context: Context, categoryId: Int) {
-        viewModelScope.launch {
-            val list = withContext(Dispatchers.IO) {
-                Repository(context).getQuestionsByCategoryId(categoryId)
-            }
-            list.apply {
-                questions.postValue(this.value)
-            }
-        }
-    }
+//    fun fetchQuestions(context: Context, categoryId: Int) {
+//        viewModelScope.launch {
+//            val list = withContext(Dispatchers.IO) {
+//                Repository(context).getQuestionsByCategoryId(categoryId)
+//            }
+//            list.apply {
+//                questions.postValue(this.value)
+//            }
+//        }
+//    }
 
 }

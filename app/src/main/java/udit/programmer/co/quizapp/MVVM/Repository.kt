@@ -11,7 +11,7 @@ class Repository(context: Context) {
 
     fun getCategories() = db.todoDao().getCategories()
     fun getCategoriesById(id: Int) = db.todoDao().getCategoriesById(id)
-    fun getQuestionsById(id: Int) = db.todoDao().getQuestionsById(id)
-    fun getQuestionsByCategoryId(categoryId: Int) =
-        db.todoDao().getQuestionsByCategoryId(categoryId)
+//    fun getQuestionsById(id: Int) = db.todoDao().getQuestionsById(id)
+//    fun getQuestionsByCategoryId(categoryId: Int) =
+//        db.todoDao().getQuestionsByCategoryId(categoryId)
 }
