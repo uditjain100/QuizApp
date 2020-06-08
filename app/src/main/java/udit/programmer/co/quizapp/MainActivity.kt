@@ -31,8 +31,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d("Ceased Meteor 01 ", "${category_list.size}")
-        c_layout.setOnClickListener(object : View.OnClickListener {
+        c_toolbar.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 showCategories()
             }
@@ -40,7 +39,6 @@ class MainActivity : AppCompatActivity() {
         db.todoDao().getCategories().observe(this, Observer {
             category_list.addAll(it)
         })
-        Log.d("Ceased Meteor 02 ", "${category_list.size}")
         rv_layout.setHasFixedSize(true)
         rv_layout.layoutManager = GridLayoutManager(this, 2)
 

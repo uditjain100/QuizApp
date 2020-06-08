@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/Yellow"
+    android:background="@color/WhiteSmoke"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbar_layout"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:backgroundTint="@color/BlueViolet"
+        android:backgroundTint="@color/DarkGoldenrod"
         app:liftOnScroll="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -41,15 +41,36 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/subject_layout"
+        android:layout_width="250dp"
+        app:cardCornerRadius="40dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar_layout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:backgroundTint="@color/Gray">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="5dp"
+            android:text="SUBJECTS"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="@color/White"
+            android:textSize="25dp"
+            android:textStyle="bold" />
+    </com.google.android.material.card.MaterialCardView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar_layout"
+        android:layout_below="@+id/subject_layout"
         android:layout_margin="10dp"
         android:background="@color/WhiteSmoke" />
-
-
 
 
 </RelativeLayout>

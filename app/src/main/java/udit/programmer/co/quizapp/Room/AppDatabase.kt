@@ -24,38 +24,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DB_NAME
-                )
-//                    .fallbackToDestructiveMigration().addCallback(object : RoomDatabase.Callback() {
-//                    override fun onCreate(db: SupportSQLiteDatabase) {
-//                        super.onCreate(db)
-//                        PopulateDBAsyncTask(INSTANCE).execute()
-//                    }
-//                })
-                    .build()
+                ).build()
                 INSTANCE = instance
                 return instance
             }
         }
     }
 }
-//
-//private class PopulateDBAsyncTask(var db: AppDatabase?) : AsyncTask<Unit, Unit, Unit>() {
-//    val name_list = arrayOf(
-//        "Art / Culture", "Geography",
-//        "Music", "Economy",
-//        "History", "Nature",
-//        "Film / TV", "Informatics",
-//        "Food and drink", "Language",
-//        "Science", "General",
-//        "Literature", "Sports",
-//        "Politics"
-//    )
-//
-//    override fun doInBackground(vararg params: Unit?) {
-//        for (i in 0..14) {
-//            var category = Category(i, name_list[i], "")
-//            db!!.todoDao().insertCategories(category)
-//        }
-//        return
-//    }
-//}
