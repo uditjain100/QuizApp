@@ -3,6 +3,7 @@ package udit.programmer.co.quizapp.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.category_layout.view.*
 import udit.programmer.co.quizapp.Interface.OnRecyclerViewItemClickListener
 import udit.programmer.co.quizapp.Models.Category
 import udit.programmer.co.quizapp.R
@@ -22,7 +23,7 @@ class CategoryAdapter(var list: MutableList<Category>) :
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         holder.bind(list[position])
-        holder.itemView.setOnClickListener {
+        holder.itemView.category_tv.setOnClickListener {
             onRecyclerViewItemClickListener?.onClick(list[position])
         }
     }

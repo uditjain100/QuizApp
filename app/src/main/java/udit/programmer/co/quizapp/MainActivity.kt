@@ -33,9 +33,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         db.todoDao().getCategories().observe(this, Observer {
-            Log.d("Ceased Meteor 00", " category ${it.size}")
             category_list.addAll(it)
         })
+
         rv_layout.setHasFixedSize(true)
         rv_layout.layoutManager = GridLayoutManager(this, 2)
 

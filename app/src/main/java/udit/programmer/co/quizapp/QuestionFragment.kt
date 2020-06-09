@@ -20,7 +20,6 @@ import java.lang.Exception
 import java.lang.StringBuilder
 
 class QuestionFragment : Fragment(), SelectAnswer {
-
     var question: Question? = null
     var questionIndex = -1
 
