@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog
 import kotlinx.android.synthetic.main.content_main.*
 import udit.programmer.co.quizapp.Adapter.GridAnswerAdapter
+import udit.programmer.co.quizapp.Adapter.MyFragmentAdapter
 import udit.programmer.co.quizapp.Common.Common
 import udit.programmer.co.quizapp.Models.CurrentQuestion
 import udit.programmer.co.quizapp.Room.AppDatabase
@@ -32,6 +33,7 @@ class QuestionsActivity : AppCompatActivity() {
     lateinit var countDownTimer: CountDownTimer
     var time_play = Common.TOTAL_TIME
     lateinit var adapter: GridAnswerAdapter
+    lateinit var fragmentAdapter: MyFragmentAdapter
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,6 +76,11 @@ class QuestionsActivity : AppCompatActivity() {
             grid_answer_rv_layout.adapter = adapter
 
             generateFragmentList()
+            fragmentAdapter = MyFragmentAdapter(supportFragmentManager, Common.fragmentList)
+            view_pager.offscreenPageLimit = Common.questionList.size
+            view_pager.adapter = fragmentAdapter
+            sliding_tabs.setupWithViewPager(view_pager)
+
         }
     }
 
