@@ -1,59 +1,183 @@
 package udit.programmer.co.quizapp
 
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.TextUtils
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import com.squareup.picasso.Callback
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.fragment_question.*
+import udit.programmer.co.quizapp.Common.Common
+import udit.programmer.co.quizapp.Interface.SelectAnswer
+import udit.programmer.co.quizapp.Models.CurrentQuestion
+import udit.programmer.co.quizapp.Models.Question
+import java.lang.Exception
+import java.lang.StringBuilder
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class QuestionFragment : Fragment(), SelectAnswer {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [QuestionFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class QuestionFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    var question: Question? = null
+    var questionIndex = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_question, container, false)
-    }
+        val itemView = inflater.inflate(R.layout.fragment_question, container, false)
+        questionIndex = arguments!!.getInt("index", -1)
+        question = Common.questionList[questionIndex]
+        if (question != null) {
+            if (question!!.isImageQuestion) {
+                Picasso.get().load(question!!.questionImage)
+                    .into(image_question, object : Callback {
+                        override fun onSuccess() {
+                            progress_bar.visibility = View.GONE
+                        }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment QuestionFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            QuestionFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                        override fun onError(e: Exception?) {
+                            image_question.setImageResource(R.drawable.ic_baseline_error_outline_24)
+                        }
+
+                    })
+            } else {
+                image_layout.visibility = View.GONE
+                txt_question_text.text = question!!.questiontxt
+                ckb_A.text = question!!.answerA
+                ckb_B.text = question!!.answerB
+                ckb_C.text = question!!.answerC
+                ckb_D.text = question!!.answerD
+                ckb_A.setOnCheckedChangeListener { compoundButton, b ->
+                    if (b) {
+                        Common.selected_values.add(ckb_A.text.toString())
+                    } else {
+                        Common.selected_values.remove(ckb_A.text.toString())
+                    }
+                }
+                ckb_B.setOnCheckedChangeListener { compoundButton, b ->
+                    if (b) {
+                        Common.selected_values.add(ckb_B.text.toString())
+                    } else {
+                        Common.selected_values.remove(ckb_B.text.toString())
+                    }
+                }
+                ckb_C.setOnCheckedChangeListener { compoundButton, b ->
+                    if (b) {
+                        Common.selected_values.add(ckb_C.text.toString())
+                    } else {
+                        Common.selected_values.remove(ckb_C.text.toString())
+                    }
+                }
+                ckb_D.setOnCheckedChangeListener { compoundButton, b ->
+                    if (b) {
+                        Common.selected_values.add(ckb_D.text.toString())
+                    } else {
+                        Common.selected_values.remove(ckb_D.text.toString())
+                    }
                 }
             }
+        }
+        return itemView
+    }
+
+    override fun selectedAnswer(): CurrentQuestion {
+        Common.selected_values.distinct()
+        if (Common.answer_sheet_list[questionIndex].type == Common.ANSWER_TYPE.NO_ANSWER) {
+            val currentQuestion = CurrentQuestion(questionIndex, Common.ANSWER_TYPE.NO_ANSWER)
+            val result = StringBuilder()
+            if (Common.selected_values.size > 1) {
+                var arrayAnswer = Common.selected_values.toTypedArray()
+                for (i in arrayAnswer!!.indices) {
+                    if (i < arrayAnswer!!.size - 1) {
+                        result.append(StringBuilder(arrayAnswer!![i] as String).substring(0, 1))
+                            .append(",")
+                    } else {
+                        result.append(arrayAnswer!![i] as String).substring(0, 1)
+                    }
+                }
+            } else if (Common.selected_values.size == 1) {
+                val arrayAnswer = Common.selected_values.toTypedArray()
+                result.append(arrayAnswer!![0] as String).substring(0, 1)
+            }
+
+            if (question != null) {
+                if (!TextUtils.isEmpty(result)) {
+                    if (result.toString() == question!!.correctAnswer) {
+                        currentQuestion.type = Common.ANSWER_TYPE.RIGHT_ANSWER
+                    } else {
+                        currentQuestion.type = Common.ANSWER_TYPE.WRONG_ANSWER
+                    }
+                } else {
+                    currentQuestion.type = Common.ANSWER_TYPE.NO_ANSWER
+                }
+            } else {
+                Toast.makeText(activity, "Cannot get Question", Toast.LENGTH_LONG).show()
+                currentQuestion.type = Common.ANSWER_TYPE.NO_ANSWER
+            }
+            Common.selected_values.clear()
+            return currentQuestion
+        } else {
+            return Common.answer_sheet_list[questionIndex]
+        }
+    }
+
+    override fun showCorrectAnswer() {
+        val correctAnswer =
+            question!!.correctAnswer!!.split(",".toRegex()).dropLastWhile { it.isEmpty() }
+        for (answer in correctAnswer) {
+            when {
+                answer == "A" -> {
+                    ckb_A.setTypeface(null, Typeface.BOLD)
+                    ckb_A.setTextColor(Color.RED)
+                }
+                answer == "B" -> {
+                    ckb_B.setTypeface(null, Typeface.BOLD)
+                    ckb_B.setTextColor(Color.RED)
+                }
+                answer == "C" -> {
+                    ckb_C.setTypeface(null, Typeface.BOLD)
+                    ckb_C.setTextColor(Color.RED)
+                }
+                answer == "D " -> {
+                    ckb_D.setTypeface(null, Typeface.BOLD)
+                    ckb_D.setTextColor(Color.RED)
+                }
+            }
+        }
+
+    }
+
+    override fun disableAnswer() {
+        ckb_A.isEnabled = false
+        ckb_B.isEnabled = false
+        ckb_C.isEnabled = false
+        ckb_D.isEnabled = false
+    }
+
+    override fun resetQuestion() {
+        ckb_A.isEnabled = true
+        ckb_B.isEnabled = true
+        ckb_C.isEnabled = true
+        ckb_D.isEnabled = true
+
+        ckb_A.isChecked = false
+        ckb_B.isChecked = false
+        ckb_C.isChecked = false
+        ckb_D.isChecked = false
+
+        ckb_A.setTypeface(null, Typeface.NORMAL)
+        ckb_A.setTextColor(Color.BLACK)
+        ckb_B.setTypeface(null, Typeface.NORMAL)
+        ckb_B.setTextColor(Color.BLACK)
+        ckb_C.setTypeface(null, Typeface.NORMAL)
+        ckb_C.setTextColor(Color.BLACK)
+        ckb_D.setTypeface(null, Typeface.NORMAL)
+        ckb_D.setTextColor(Color.BLACK)
+
+        Common.selected_values.clear()
     }
 }
