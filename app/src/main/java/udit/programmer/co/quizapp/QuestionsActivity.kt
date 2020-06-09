@@ -44,7 +44,7 @@ class QuestionsActivity : AppCompatActivity() {
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
-//        val navController = findNavController(R.id.nav_host_fragment)
+        //       val navController = findNavController(R.id.nav_host_fragment)
 //        // Passing each menu ID as a set of Ids because each
 //        // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
@@ -126,11 +126,11 @@ class QuestionsActivity : AppCompatActivity() {
 
     private fun generateQuestions() {
         Common.questionList =
-            db.todoDao().getQuestionsByCategoryId(Common.selectedCategory!!.id).value!!
+            db.todoDao().getQuestionsByCategoryId(Common.selectedCategory!!.Id).value!!
         if (Common.questionList.size == 0) {
             MaterialStyledDialog.Builder(this)
                 .setTitle("Ooops...")
-                .setDescription("We don't have any questions in this ${Common.selectedCategory!!.name} category")
+                .setDescription("We don't have any questions in this ${Common.selectedCategory!!.Name} category")
                 .setIcon(R.drawable.ic_launcher_foreground)
                 .setPositiveText("OK")
                 .onPositive {

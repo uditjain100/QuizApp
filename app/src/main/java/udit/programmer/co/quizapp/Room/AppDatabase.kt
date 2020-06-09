@@ -10,7 +10,7 @@ import udit.programmer.co.quizapp.DB_NAME
 import udit.programmer.co.quizapp.Models.Category
 import udit.programmer.co.quizapp.Models.Question
 
-@Database(entities = arrayOf(Category::class, Question::class), version = 2)
+@Database(entities = [Category::class, Question::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
 
@@ -25,7 +25,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DB_NAME
-                ).fallbackToDestructiveMigration().build()
+                ).createFromAsset("database/QuizAsset.db")
+                    .fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 return instance
             }

@@ -32,8 +32,8 @@ class QuestionFragment : Fragment(), SelectAnswer {
         questionIndex = arguments!!.getInt("index", -1)
         question = Common.questionList[questionIndex]
         if (question != null) {
-            if (question!!.isImageQuestion) {
-                Picasso.get().load(question!!.questionImage)
+            if (question!!.IsImageQuestion!!) {
+                Picasso.get().load(question!!.QuestionImage)
                     .into(image_question, object : Callback {
                         override fun onSuccess() {
                             progress_bar.visibility = View.GONE
@@ -46,11 +46,11 @@ class QuestionFragment : Fragment(), SelectAnswer {
                     })
             } else {
                 image_layout.visibility = View.GONE
-                txt_question_text.text = question!!.questiontxt
-                ckb_A.text = question!!.answerA
-                ckb_B.text = question!!.answerB
-                ckb_C.text = question!!.answerC
-                ckb_D.text = question!!.answerD
+                txt_question_text.text = question!!.QuestionText
+                ckb_A.text = question!!.AnswerA
+                ckb_B.text = question!!.AnswerB
+                ckb_C.text = question!!.AnswerC
+                ckb_D.text = question!!.AnswerD
                 ckb_A.setOnCheckedChangeListener { compoundButton, b ->
                     if (b) {
                         Common.selected_values.add(ckb_A.text.toString())
@@ -106,7 +106,7 @@ class QuestionFragment : Fragment(), SelectAnswer {
 
             if (question != null) {
                 if (!TextUtils.isEmpty(result)) {
-                    if (result.toString() == question!!.correctAnswer) {
+                    if (result.toString() == question!!.CorrectAnswer) {
                         currentQuestion.type = Common.ANSWER_TYPE.RIGHT_ANSWER
                     } else {
                         currentQuestion.type = Common.ANSWER_TYPE.WRONG_ANSWER
@@ -127,7 +127,7 @@ class QuestionFragment : Fragment(), SelectAnswer {
 
     override fun showCorrectAnswer() {
         val correctAnswer =
-            question!!.correctAnswer!!.split(",".toRegex()).dropLastWhile { it.isEmpty() }
+            question!!.CorrectAnswer!!.split(",".toRegex()).dropLastWhile { it.isEmpty() }
         for (answer in correctAnswer) {
             when {
                 answer == "A" -> {

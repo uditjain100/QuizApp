@@ -3,28 +3,29 @@ package udit.programmer.co.quizapp.Models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.jetbrains.annotations.NotNull
 
 @Entity(tableName = "Question")
 data class Question(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    var id: Int,
-    @ColumnInfo(name = "questiontxt")
-    var questiontxt: String?,
-    @ColumnInfo(name = "questionImage")
-    var questionImage: String?,
-    @ColumnInfo(name = "answerA")
-    var answerA: String?,
-    @ColumnInfo(name = "answerB")
-    var answerB: String?,
-    @ColumnInfo(name = "answerC")
-    var answerC: String?,
-    @ColumnInfo(name = "answerD")
-    var answerD: String?,
-    @ColumnInfo(name = "correctAnswer")
-    var correctAnswer: String?,
-    @ColumnInfo(name = "isImageQuestion")
-    var isImageQuestion: Boolean,
-    @ColumnInfo(name = "categoryId")
-    var categoryId: Int
+    @PrimaryKey
+    @ColumnInfo(name = "ID")
+    var ID: Int,
+    @ColumnInfo(name = "QuestionText")
+    var QuestionText: String?,
+    @ColumnInfo(name = "QuestionImage")
+    var QuestionImage: String?,
+    @ColumnInfo(name = "AnswerA")
+    var AnswerA: String?,
+    @ColumnInfo(name = "AnswerB")
+    var AnswerB: String?,
+    @ColumnInfo(name = "AnswerC")
+    var AnswerC: String?,
+    @ColumnInfo(name = "AnswerD")
+    var AnswerD: String?,
+    @ColumnInfo(name = "CorrectAnswer")
+    var CorrectAnswer: String?,
+    @ColumnInfo(name = "IsImageQuestion")
+    var IsImageQuestion: Boolean?,
+    @ColumnInfo(name = "CategoryID")
+    var CategoryID: Int?
 )

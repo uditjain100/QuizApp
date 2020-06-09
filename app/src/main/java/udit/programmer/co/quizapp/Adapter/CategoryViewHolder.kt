@@ -7,6 +7,6 @@ import udit.programmer.co.quizapp.Models.Category
 
 class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     fun bind(category: Category) {
-        itemView.category_tv.text = category.name.toString()
+        itemView.category_tv.text = category.Name.toString()
     }
 }
