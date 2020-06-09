@@ -1,5 +1,7 @@
 package udit.programmer.co.quizapp.Interface
 
+import udit.programmer.co.quizapp.Models.Category
+
 interface OnRecyclerViewItemClickListener {
-    fun onClick(position: Int)
+    fun onClick(category: Category)
 }

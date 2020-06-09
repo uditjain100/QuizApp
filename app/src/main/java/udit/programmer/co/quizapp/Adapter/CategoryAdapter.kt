@@ -22,5 +22,8 @@ class CategoryAdapter(var list: MutableList<Category>) :
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         holder.bind(list[position])
+        holder.itemView.setOnClickListener {
+            onRecyclerViewItemClickListener?.onClick(list[position])
+        }
     }
 }

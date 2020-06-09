@@ -50,10 +50,10 @@ class MainActivity : AppCompatActivity() {
         val adapter = CategoryAdapter(category_list)
         rv_layout.addItemDecoration(SpacesItemDecoration(4))
         adapter.onRecyclerViewItemClickListener = object : OnRecyclerViewItemClickListener {
-            override fun onClick(position: Int) {
+            override fun onClick(category: Category) {
                 Toast.makeText(
                     this@MainActivity,
-                    "${category_list[position].name} clicked",
+                    "${category.name} clicked",
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -84,6 +84,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-
-
-
