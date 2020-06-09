@@ -16,20 +16,23 @@ interface TodoDao {
 
     @Query("SELECT * FROM category WHERE id In (:categoryId)")
     fun getCategoriesById(categoryId: Int): LiveData<MutableList<Category>>
-
-    @Insert
-    fun insertCategories(category: Category)
-
+//
+//    @Insert
+//    fun insertCategories(category: Category)
+//
     @Insert
     fun insertAllCategories(list: MutableList<Category>)
 
-    @Query("SELECT * FROM Question WHERE categoryId ORDER BY RANDOM() LIMIT 30")
+    @Query("SELECT * FROM Question WHERE categoryId = :categoryId ORDER BY RANDOM() LIMIT 30")
     fun getQuestionsByCategoryId(categoryId: Int): LiveData<MutableList<Question>>
 
-//    @Query("SELECT * FROM questions WHERE id In (:questionId)")
-//    fun getQuestionsById(questionId: Int): LiveData<MutableList<Question>>
+//    @Query("SELECT * FROM Question")
+//    fun getQuestions(): LiveData<MutableList<Question>>
 //
 //    @Insert
 //    fun insertAllQuestionsByCategories(vararg question: Question, categoryId: Int)
+
+    @Insert
+    fun insertAllQuestions(list: MutableList<Question>)
 
 }

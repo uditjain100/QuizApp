@@ -8,8 +8,9 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import udit.programmer.co.quizapp.DB_NAME
 import udit.programmer.co.quizapp.Models.Category
+import udit.programmer.co.quizapp.Models.Question
 
-@Database(entities = [Category::class], version = 1)
+@Database(entities = arrayOf(Category::class, Question::class), version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
 
@@ -24,7 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DB_NAME
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 return instance
             }
