@@ -1,5 +1,6 @@
 package udit.programmer.co.quizapp
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import udit.programmer.co.quizapp.Adapter.CategoryAdapter
+import udit.programmer.co.quizapp.Common.Common
 import udit.programmer.co.quizapp.Common.SpacesItemDecoration
 import udit.programmer.co.quizapp.Interface.OnRecyclerViewItemClickListener
 import udit.programmer.co.quizapp.Models.Category
@@ -51,11 +53,8 @@ class MainActivity : AppCompatActivity() {
         rv_layout.addItemDecoration(SpacesItemDecoration(4))
         adapter.onRecyclerViewItemClickListener = object : OnRecyclerViewItemClickListener {
             override fun onClick(category: Category) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "${category.name} clicked",
-                    Toast.LENGTH_LONG
-                ).show()
+                Common.selectedCategory = category
+                startActivity(Intent(this@MainActivity, QuestionsActivity::class.java))
             }
         }
         rv_layout.adapter = adapter
