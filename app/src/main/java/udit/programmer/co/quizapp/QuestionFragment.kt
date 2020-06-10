@@ -24,6 +24,14 @@ class QuestionFragment : Fragment(), SelectAnswer {
     var question: Question? = null
     var questionIndex = -1
 
+    fun newInstance(i: Int): QuestionFragment {
+        var fragmentquestion = QuestionFragment();
+        var bundle = Bundle();
+        bundle.putInt("index", i)
+        fragmentquestion.arguments = bundle
+        return fragmentquestion;
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,7 +50,6 @@ class QuestionFragment : Fragment(), SelectAnswer {
                         override fun onError(e: Exception?) {
                             image_question.setImageResource(R.drawable.ic_baseline_error_outline_24)
                         }
-
                     })
             } else {
                 image_layout.visibility = View.GONE
@@ -86,6 +93,8 @@ class QuestionFragment : Fragment(), SelectAnswer {
 
     override fun selectedAnswer(): CurrentQuestion {
         Common.selected_values.distinct()
+        Common.selected_values.sort()
+
         if (Common.answer_sheet_list[questionIndex].type == Common.ANSWER_TYPE.NO_ANSWER) {
             val currentQuestion = CurrentQuestion(questionIndex, Common.ANSWER_TYPE.NO_ANSWER)
             val result = StringBuilder()

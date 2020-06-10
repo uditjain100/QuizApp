@@ -4,24 +4,30 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.Menu
 import android.view.View
+import android.view.ViewParent
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.viewpager.widget.ViewPager
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog
 import kotlinx.android.synthetic.main.activity_question.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.fragment_question.*
+import kotlinx.android.synthetic.main.nav_header_main.*
+import kotlinx.android.synthetic.main.rectangle_text_view.*
 import udit.programmer.co.quizapp.Adapter.GridAnswerAdapter
 import udit.programmer.co.quizapp.Adapter.MyFragmentAdapter
 import udit.programmer.co.quizapp.Common.Common
 import udit.programmer.co.quizapp.Models.CurrentQuestion
 import udit.programmer.co.quizapp.Room.AppDatabase
+import java.time.ZoneOffset
 import java.util.concurrent.TimeUnit
 
 class QuestionsActivity : AppCompatActivity() {
@@ -34,7 +40,7 @@ class QuestionsActivity : AppCompatActivity() {
     lateinit var adapter: GridAnswerAdapter
     lateinit var fragmentAdapter: MyFragmentAdapter
     private lateinit var appBarConfiguration: AppBarConfiguration
-    var fragmentManager: FragmentManager = supportFragmentManager
+    lateinit var txt_wrong_answer: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,26 +49,11 @@ class QuestionsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val navController = findNavController(R.id.nav_host_fragment)
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
-            ), drawer_layout
-        )
-
+        appBarConfiguration = AppBarConfiguration(setOf(R.id.nav_home), drawer_layout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         nav_view.setupWithNavController(navController)
 
         generateQuestions()
-    }
-
-    private fun generateFragmentList() {
-        for (i in Common.questionList.indices) {
-            val bundle = Bundle()
-            bundle.putInt("index", i)
-            val fragment = QuestionFragment()
-            fragment.arguments = bundle
-            Common.fragmentList.add(fragment)
-        }
     }
 
     private fun generateItems() {
@@ -92,6 +83,40 @@ class QuestionsActivity : AppCompatActivity() {
     }
 
     private fun finishQuiz() {
+
+        val position = view_pager.currentItem
+        val questionFragment = Common.fragmentList[position]
+
+        val question_state = questionFragment.selectedAnswer()
+        Common.answer_sheet_list[position] = question_state
+        adapter.notifyDataSetChanged()
+
+        countCorrectAnswer()
+
+        right_answer.text =
+            "${Common.right_answer_count} / ${Common.questionList.size}"
+        txt_wrong_answer.text = "${Common.wrong_answer_count}"
+
+        if (question_state.type != Common.ANSWER_TYPE.NO_ANSWER) {
+            questionFragment.showCorrectAnswer()
+            questionFragment.disableAnswer()
+        }
+
+    }
+
+    private fun countCorrectAnswer() {
+
+        Common.right_answer_count = 0
+        Common.wrong_answer_count = 0
+
+        for (item in Common.answer_sheet_list) {
+            if (Common.answer_sheet_list == Common.ANSWER_TYPE.RIGHT_ANSWER) {
+                Common.right_answer_count++
+            } else if (Common.answer_sheet_list == Common.ANSWER_TYPE.WRONG_ANSWER) {
+                Common.wrong_answer_count++
+            }
+        }
+
 
     }
 
@@ -125,23 +150,98 @@ class QuestionsActivity : AppCompatActivity() {
                 adapter = GridAnswerAdapter(Common.answer_sheet_list)
                 grid_answer_rv_layout.adapter = adapter
 
-                generateFragmentList()
-                fragmentAdapter = MyFragmentAdapter(fragmentManager, Common.fragmentList)
+                fragmentAdapter =
+                    MyFragmentAdapter(supportFragmentManager, Common.questionList.size)
                 view_pager.offscreenPageLimit = Common.questionList.size
                 view_pager.adapter = fragmentAdapter
+
                 sliding_tabs.setupWithViewPager(view_pager)
+
+                view_pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+
+                    val SCROLLING_RIGHT = 0
+                    val SCROLLING_LEFT = 1
+                    val SCROLLING_UBDETERMINED = 2
+
+                    var currentScrollDirection = SCROLLING_UBDETERMINED
+
+                    private val isScrollDirectionUndetermined: Boolean
+                        get() = currentScrollDirection == SCROLLING_UBDETERMINED
+                    private val isScrollDirectionRight: Boolean
+                        get() = currentScrollDirection == SCROLLING_RIGHT
+                    private val isScrollDirectionLeft: Boolean
+                        get() = currentScrollDirection == SCROLLING_LEFT
+
+                    private fun setScrollingDirection(positionOffset: Float) {
+                        if (1 - positionOffset >= 0.5)
+                            this.currentScrollDirection = SCROLLING_RIGHT
+                        else if (1 - positionOffset <= 0.5)
+                            this.currentScrollDirection = SCROLLING_LEFT
+                    }
+
+                    override fun onPageScrollStateChanged(state: Int) {
+                        if (state == ViewPager.SCROLL_STATE_IDLE)
+                            this.currentScrollDirection = SCROLLING_UBDETERMINED
+                    }
+
+                    override fun onPageScrolled(
+                        position: Int,
+                        positionOffset: Float,
+                        positionOffsetPixels: Int
+                    ) {
+                        if (isScrollDirectionUndetermined) setScrollingDirection(positionOffset)
+                    }
+
+                    override fun onPageSelected(p0: Int) {
+                        var questionFragment: QuestionFragment
+                        var position = 0
+                        if (p0 > 0) {
+                            if (isScrollDirectionRight) {
+                                questionFragment = Common.fragmentList[p0 - 1]
+                                position = p0 - 1
+                            } else if (isScrollDirectionLeft) {
+                                questionFragment = Common.fragmentList[p0 + 1]
+                                position = p0 + 1
+                            } else {
+                                questionFragment = Common.fragmentList[p0]
+                            }
+                        } else {
+                            questionFragment = Common.fragmentList[0]
+                            position = 0
+                        }
+                        if (Common.answer_sheet_list[position].type == Common.ANSWER_TYPE.NO_ANSWER) {
+                            val question_state = questionFragment.selectedAnswer()
+                            Common.answer_sheet_list[position] = question_state
+                            adapter.notifyDataSetChanged()
+
+                            countCorrectAnswer()
+
+                            right_answer.text =
+                                "${Common.right_answer_count} / ${Common.questionList.size}"
+                            txt_wrong_answer.text = "${Common.wrong_answer_count}"
+
+                            if (question_state.type != Common.ANSWER_TYPE.NO_ANSWER) {
+                                questionFragment.showCorrectAnswer()
+                                questionFragment.disableAnswer()
+                            }
+                        }
+                    }
+                })
             }
         })
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val item = menu!!.findItem(R.id.menu_wrong_answer)
+        val layout = item.actionView as RelativeLayout
+        txt_wrong_answer = layout.findViewById(R.id.menu_wrong_answer) as TextView
+        txt_wrong_answer.text = 0.toString()
+        return true
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.quiz, menu)
         return true
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
 }

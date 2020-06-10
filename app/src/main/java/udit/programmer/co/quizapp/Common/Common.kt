@@ -4,6 +4,7 @@ import udit.programmer.co.quizapp.Models.Category
 import udit.programmer.co.quizapp.Models.CurrentQuestion
 import udit.programmer.co.quizapp.Models.Question
 import udit.programmer.co.quizapp.QuestionFragment
+import java.lang.StringBuilder
 
 object Common {
 
@@ -13,6 +14,12 @@ object Common {
     var selectedCategory: Category? = null
     var fragmentList: MutableList<QuestionFragment> = ArrayList()
     var selected_values: MutableList<String> = ArrayList()
+
+    var timer = 0
+    var right_answer_count = 0
+    var wrong_answer_count = 0
+    var no_answer_count = 0
+    var data_question = StringBuilder()
 
     enum class ANSWER_TYPE {
         NO_ANSWER,
