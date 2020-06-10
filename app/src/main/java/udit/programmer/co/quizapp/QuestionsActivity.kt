@@ -1,10 +1,12 @@
 package udit.programmer.co.quizapp
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.view.Menu
-import android.view.View
-import android.view.ViewParent
+import android.view.*
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.navigation.findNavController
@@ -14,17 +16,22 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager.widget.ViewPager
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog
 import kotlinx.android.synthetic.main.activity_question.*
+import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.fragment_question.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.android.synthetic.main.rectangle_text_view.*
 import udit.programmer.co.quizapp.Adapter.GridAnswerAdapter
 import udit.programmer.co.quizapp.Adapter.MyFragmentAdapter
+import udit.programmer.co.quizapp.Adapter.QuestionHelperAdapter
 import udit.programmer.co.quizapp.Common.Common
+import udit.programmer.co.quizapp.Common.SpacesItemDecoration
+import udit.programmer.co.quizapp.Interface.OnHelperRecyclerViewClickListener
 import udit.programmer.co.quizapp.Models.CurrentQuestion
 import udit.programmer.co.quizapp.Room.AppDatabase
 import java.time.ZoneOffset
@@ -41,19 +48,78 @@ class QuestionsActivity : AppCompatActivity() {
     lateinit var fragmentAdapter: MyFragmentAdapter
     private lateinit var appBarConfiguration: AppBarConfiguration
     lateinit var txt_wrong_answer: TextView
+    lateinit var helper_adapter: QuestionHelperAdapter
+    internal var goToQuestion: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action!!.toString() == Common.KEY_GO_TO_QUESTION) {
+                val question = intent.getIntExtra(Common.KEY_GO_TO_QUESTION, -1)
+                if (question != -1) view_pager.currentItem = question
+                drawer_layout.closeDrawer(Gravity.LEFT)
+            }
+        }
+
+    }
+    var isAnswerModeView = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_question)
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(goToQuestion, IntentFilter(Common.KEY_GO_TO_QUESTION))
 
         val navController = findNavController(R.id.nav_host_fragment)
         appBarConfiguration = AppBarConfiguration(setOf(R.id.nav_home), drawer_layout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         nav_view.setupWithNavController(navController)
 
+        answer_sheet.setHasFixedSize(true)
+        answer_sheet.layoutManager = GridLayoutManager(this, 3)
+        answer_sheet.addItemDecoration(SpacesItemDecoration(2))
+
+        btn_done.setOnClickListener {
+            if (!isAnswerModeView) {
+                MaterialStyledDialog.Builder(this)
+                    .setTitle("Finish")
+                    .setDescription("Do you really want to finish?")
+                    .setIcon(R.drawable.ic_baseline_mood_24)
+                    .setNegativeText("No")
+                    .onNegative {
+                        finish()
+                    }.setPositiveText("Yes")
+                    .onPositive {
+                        finishQuiz()
+                        drawer_layout.closeDrawer(Gravity.LEFT)
+                    }.show()
+            } else {
+                finishQuiz()
+            }
+        }
+
         generateQuestions()
+
+    }
+
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(goToQuestion)
+        if (countDownTimer != null)
+            countDownTimer!!.cancel()
+        if (Common.fragmentList != null)
+            Common.fragmentList.clear()
+        if (Common.answer_sheet_list != null)
+            Common.answer_sheet_list.clear()
+        super.onDestroy()
+    }
+
+    private fun generateFragmentList() {
+        for (i in Common.questionList.indices) {
+            val bundle = Bundle()
+            bundle.putInt("index", i)
+            val fragment = QuestionFragment()
+            fragment.arguments = bundle
+            Common.fragmentList.add(fragment)
+        }
     }
 
     private fun generateItems() {
@@ -150,8 +216,10 @@ class QuestionsActivity : AppCompatActivity() {
                 adapter = GridAnswerAdapter(Common.answer_sheet_list)
                 grid_answer_rv_layout.adapter = adapter
 
+                generateFragmentList()
+
                 fragmentAdapter =
-                    MyFragmentAdapter(supportFragmentManager, Common.questionList.size)
+                    MyFragmentAdapter(supportFragmentManager, Common.fragmentList)
                 view_pager.offscreenPageLimit = Common.questionList.size
                 view_pager.adapter = fragmentAdapter
 
@@ -227,6 +295,22 @@ class QuestionsActivity : AppCompatActivity() {
                         }
                     }
                 })
+                right_answer.text =
+                    "${Common.right_answer_count} / ${Common.questionList.size}"
+                helper_adapter = QuestionHelperAdapter(Common.answer_sheet_list)
+                helper_adapter.onHelperRecyclerViewClickListener =
+                    object : OnHelperRecyclerViewClickListener {
+                        override fun onClick(position: Int) {
+                            LocalBroadcastManager.getInstance(this@QuestionsActivity)
+                                .sendBroadcast(
+                                    Intent(Common.KEY_GO_TO_QUESTION).putExtra(
+                                        Common.KEY_GO_TO_QUESTION,
+                                        position
+                                    )
+                                )
+                        }
+                    }
+                answer_sheet.adapter = helper_adapter
             }
         })
     }
@@ -241,6 +325,15 @@ class QuestionsActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.quiz, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.btn_done -> {
+                finishQuiz()
+            }
+        }
         return true
     }
 

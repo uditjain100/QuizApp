@@ -14,6 +14,7 @@ object Common {
     var selectedCategory: Category? = null
     var fragmentList: MutableList<QuestionFragment> = ArrayList()
     var selected_values: MutableList<String> = ArrayList()
+    val KEY_GO_TO_QUESTION: String? = "position_go_to"
 
     var timer = 0
     var right_answer_count = 0
