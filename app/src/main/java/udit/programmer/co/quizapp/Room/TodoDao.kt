@@ -21,6 +21,6 @@ interface TodoDao {
     fun getQuestionsByCategoryId(categoryId: Int): LiveData<MutableList<Question>>
 
     @Query("SELECT * FROM Question")
-    fun getQuestions(): LiveData<MutableList<Question>>
+    fun getAllQuestions(): LiveData<MutableList<Question>>
 
 }

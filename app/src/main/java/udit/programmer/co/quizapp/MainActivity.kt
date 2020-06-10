@@ -19,6 +19,7 @@ import udit.programmer.co.quizapp.Models.Question
 import udit.programmer.co.quizapp.Room.AppDatabase
 
 const val DB_NAME = "QuizAsset.db"
+const val KEY = "CEASED_METEOR"
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,7 +27,6 @@ class MainActivity : AppCompatActivity() {
         AppDatabase.getDataBase(this)
     }
     private val category_list = mutableListOf<Category>()
-    private val questions_list = mutableListOf<Question>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

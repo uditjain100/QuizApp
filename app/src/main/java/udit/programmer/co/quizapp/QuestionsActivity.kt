@@ -4,17 +4,15 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.Menu
 import android.view.View
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog
 import kotlinx.android.synthetic.main.activity_question.*
@@ -36,6 +34,7 @@ class QuestionsActivity : AppCompatActivity() {
     lateinit var adapter: GridAnswerAdapter
     lateinit var fragmentAdapter: MyFragmentAdapter
     private lateinit var appBarConfiguration: AppBarConfiguration
+    var fragmentManager: FragmentManager = supportFragmentManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,42 +53,6 @@ class QuestionsActivity : AppCompatActivity() {
         nav_view.setupWithNavController(navController)
 
         generateQuestions()
-        if (Common.questionList.size > 0) {
-
-            txt_timer.visibility = View.VISIBLE
-            right_answer.visibility = View.VISIBLE
-
-            countTimer()
-
-            generateItems()
-            grid_answer_rv_layout.setHasFixedSize(true)
-            if (Common.questionList.size > 0) {
-                grid_answer_rv_layout.layoutManager = GridLayoutManager(
-                    this,
-                    if (Common.questionList.size > 5) Common.questionList.size / 2 else Common.questionList.size
-                )
-            }
-
-            adapter = GridAnswerAdapter(Common.answer_sheet_list)
-            grid_answer_rv_layout.adapter = adapter
-
-            generateFragmentList()
-            fragmentAdapter = MyFragmentAdapter(supportFragmentManager, Common.fragmentList)
-            view_pager.offscreenPageLimit = Common.questionList.size
-            view_pager.adapter = fragmentAdapter
-            sliding_tabs.setupWithViewPager(view_pager)
-
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.quiz, menu)
-        return true
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
     private fun generateFragmentList() {
@@ -133,18 +96,52 @@ class QuestionsActivity : AppCompatActivity() {
     }
 
     private fun generateQuestions() {
-        Common.questionList =
-            db.todoDao().getQuestionsByCategoryId(Common.selectedCategory!!.Id).value!!
-        if (Common.questionList.size == 0) {
-            MaterialStyledDialog.Builder(this)
-                .setTitle("Ooops...")
-                .setDescription("We don't have any questions in this ${Common.selectedCategory!!.Name} category")
-                .setIcon(R.drawable.ic_launcher_foreground)
-                .setPositiveText("OK")
-                .onPositive {
-                    finish()
-                }.show()
-        }
+        db.todoDao().getQuestionsByCategoryId(Common.selectedCategory!!.Id).observe(this, Observer {
+            Common.questionList.addAll(it)
+            if (Common.questionList.size == 0) {
+                MaterialStyledDialog.Builder(this)
+                    .setTitle("Ooops...")
+                    .setDescription("We don't have any questions in this ${Common.selectedCategory!!.Name} category")
+                    .setIcon(R.drawable.ic_launcher_foreground)
+                    .setPositiveText("OK")
+                    .onPositive {
+                        finish()
+                    }.show()
+            } else if (Common.questionList.size > 0) {
+                txt_timer.visibility = View.VISIBLE
+                right_answer.visibility = View.VISIBLE
+
+                countTimer()
+
+                generateItems()
+
+                grid_answer_rv_layout.setHasFixedSize(true)
+                if (Common.questionList.size > 0) {
+                    grid_answer_rv_layout.layoutManager = GridLayoutManager(
+                        this,
+                        if (Common.questionList.size > 5) Common.questionList.size / 2 else Common.questionList.size
+                    )
+                }
+                adapter = GridAnswerAdapter(Common.answer_sheet_list)
+                grid_answer_rv_layout.adapter = adapter
+
+                generateFragmentList()
+                fragmentAdapter = MyFragmentAdapter(fragmentManager, Common.fragmentList)
+                view_pager.offscreenPageLimit = Common.questionList.size
+                view_pager.adapter = fragmentAdapter
+                sliding_tabs.setupWithViewPager(view_pager)
+            }
+        })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.quiz, menu)
+        return true
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment)
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
 }
